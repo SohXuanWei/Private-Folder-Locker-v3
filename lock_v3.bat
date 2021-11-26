@@ -9,7 +9,7 @@ if NOT EXIST Private goto MDLOCKER
 
 :CONFIRM
 echo Are you sure you want to lock the folder(Y/N)
-echo Input (R) to reset password
+echo Input (R) to reset password, (H) to reset hint
 set/p "cho=>"
 if %cho%==Y goto LOCK
 if %cho%==y goto LOCK
@@ -17,6 +17,8 @@ if %cho%==n goto END
 if %cho%==N goto END
 if %cho%==R goto SETPW
 if %cho%==r goto SETPW
+if %cho%==H goto SETHT
+if %cho%==h goto SETHT
 echo Invalid choice.
 goto CONFIRM
 
@@ -31,7 +33,10 @@ echo Folder has been locked
 goto End
 
 :UNLOCK
-echo Enter password to unlock folder
+attrib -h -s hint
+set /p gethint=<hint
+attrib +h +s hint
+echo Enter password to unlock folder (hint: %gethint%)
 set/p "pass=>"
 echo %pass%> pass.txt
 for /f "delims=" %%i in ('7z h pass.txt ^| findstr data:') do set userh=%%i
@@ -60,6 +65,18 @@ REM ask user to input password
 echo Please define a password:
 set/p "pwdef=>"
 echo %pwdef%> Private/password.txt
+
+:SETHT
+REM ask user to set a hint
+echo Enter a hint for your password (ENTER to skip):
+attrib -h -s hint
+set/p curht=<hint
+attrib +h +s hint
+echo Current Hint: %curht%
+set/p "htdef=>"
+attrib -h -s hint
+echo %htdef%> hint
+attrib +h +s hint
 
 :SETHASH
 REM find crc and place in hash file
